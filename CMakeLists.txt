@@ -268,6 +268,7 @@ set(DROGON_SOURCES
     lib/src/HttpAppFrameworkImpl.cc
     lib/src/HttpBinder.cc
     lib/src/HttpClientImpl.cc
+    lib/src/Http2Client.cc
     lib/src/HttpControllersRouter.cc
     lib/src/HttpFileImpl.cc
     lib/src/HttpFileUploadRequest.cc

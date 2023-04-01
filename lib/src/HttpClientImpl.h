@@ -25,6 +25,8 @@
 #include <vector>
 #include "impl_forwards.h"
 
+#include "Http2Client.h"
+
 namespace drogon
 {
 class HttpClientImpl final : public HttpClient,
@@ -141,6 +143,8 @@ class HttpClientImpl final : public HttpClient,
     std::vector<std::pair<std::string, std::string>> sslConfCmds_;
     std::string clientCertPath_;
     std::string clientKeyPath_;
+
+    std::unique_ptr<Http2Client> http2ClientPtr_;
 };
 using HttpClientImplPtr = std::shared_ptr<HttpClientImpl>;
 }  // namespace drogon

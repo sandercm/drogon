@@ -47,7 +47,8 @@ void HttpClientImpl::createTcpClient()
             .setHostname(domain_)
             .setConfCmds(sslConfCmds_)
             .setCertPath(clientCertPath_)
-            .setKeyPath(clientKeyPath_);
+            .setKeyPath(clientKeyPath_)
+            .setAlpnProtocols({"h2", "http/1.1"});
         tcpClientPtr_->enableSSL(std::move(policy));
     }
 
@@ -61,6 +62,11 @@ void HttpClientImpl::createTcpClient()
                 return;
             if (connPtr->connected())
             {
+                if (connPtr->applicationProtocol() == "h2")
+                {
+                    thisPtr->http2ClientPtr_ = std::make_unique<Http2Client>();
+                    thisPtr->http2ClientPtr_->onConnected(connPtr);
+                }
                 connPtr->setContext(
                     std::make_shared<HttpResponseParser>(connPtr));
                 // send request;
@@ -116,6 +122,11 @@ void HttpClientImpl::createTcpClient()
             auto thisPtr = weakPtr.lock();
             if (thisPtr)
             {
+                if (thisPtr->http2ClientPtr_)
+                {
+                    thisPtr->http2ClientPtr_->onMessage(connPtr, msg);
+                    return;
+                }
                 thisPtr->onRecvMessage(connPtr, msg);
             }
         });
