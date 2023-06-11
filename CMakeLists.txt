@@ -288,6 +288,7 @@ set(DROGON_SOURCES
     lib/src/PluginsManager.cc
     lib/src/RangeParser.cc
     lib/src/SecureSSLRedirector.cc
+    lib/src/GlobalFilters.cc
     lib/src/AccessLogger.cc
     lib/src/RealIpResolver.cc
     lib/src/SessionManager.cc
@@ -302,6 +303,7 @@ set(DROGON_SOURCES
     lib/src/SlidingWindowRateLimiter.cc
     lib/src/TokenBucketRateLimiter.cc
     lib/src/Hodor.cc
+    lib/src/SlashRemover.cc
     lib/src/drogon_test.cc
     lib/src/ConfigAdapterManager.cc
     lib/src/JsonConfigAdapter.cc
@@ -631,7 +633,7 @@ if (pg_FOUND OR DROGON_FOUND_MYSQL OR DROGON_FOUND_SQLite3)
     endif (DROGON_FOUND_SQLite3)
 endif (pg_FOUND OR DROGON_FOUND_MYSQL OR DROGON_FOUND_SQLite3)
 
-set(COMPILER_COMMAND ${CMAKE_CXX_COMPILER})
+get_filename_component(COMPILER_COMMAND ${CMAKE_CXX_COMPILER} NAME)
 set(COMPILER_ID ${CMAKE_CXX_COMPILER_ID})
 
 if (CMAKE_BUILD_TYPE)
@@ -688,6 +690,7 @@ install(FILES ${DROGON_HEADERS} DESTINATION ${INSTALL_INCLUDE_DIR}/drogon)
 
 set(ORM_HEADERS
     orm_lib/inc/drogon/orm/ArrayParser.h
+    orm_lib/inc/drogon/orm/BaseBuilder.h
     orm_lib/inc/drogon/orm/Criteria.h
     orm_lib/inc/drogon/orm/DbClient.h
     orm_lib/inc/drogon/orm/DbListener.h
@@ -730,7 +733,10 @@ set(DROGON_PLUGIN_HEADERS
     lib/inc/drogon/plugins/SecureSSLRedirector.h
     lib/inc/drogon/plugins/AccessLogger.h
     lib/inc/drogon/plugins/RealIpResolver.h
-    lib/inc/drogon/plugins/Hodor.h)
+    lib/inc/drogon/plugins/Hodor.h
+    lib/inc/drogon/plugins/SlashRemover.h
+    lib/inc/drogon/plugins/GlobalFilters.h)
+
 install(FILES ${DROGON_PLUGIN_HEADERS}
     DESTINATION ${INSTALL_INCLUDE_DIR}/drogon/plugins)
 

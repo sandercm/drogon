@@ -57,6 +57,10 @@ class HttpAppFrameworkImpl final : public HttpAppFramework
     }
 
     PluginBase *getPlugin(const std::string &name) override;
+    void addPlugins(const Json::Value &configs);
+    void addPlugin(const std::string &name,
+                   const std::vector<std::string> &dependencies,
+                   const Json::Value &config);
     HttpAppFramework &addListener(
         const std::string &ip,
         uint16_t port,
@@ -307,7 +311,8 @@ class HttpAppFrameworkImpl final : public HttpAppFramework
     }
     HttpAppFramework &setLogPath(const std::string &logPath,
                                  const std::string &logfileBaseName,
-                                 size_t logfileSize) override;
+                                 size_t logfileSize,
+                                 size_t maxFiles) override;
     HttpAppFramework &setLogLevel(trantor::Logger::LogLevel level) override;
     HttpAppFramework &setLogLocalTime(bool on) override;
     HttpAppFramework &enableSendfile(bool sendFile) override
@@ -672,6 +677,7 @@ class HttpAppFrameworkImpl final : public HttpAppFramework
     std::string logPath_;
     std::string logfileBaseName_;
     size_t logfileSize_{100000000};
+    size_t logfileMaxNum_{0};
     size_t keepaliveRequestsNumber_{0};
     size_t pipeliningRequestsNumber_{0};
     size_t jsonStackLimit_{1000};
@@ -693,6 +699,7 @@ class HttpAppFrameworkImpl final : public HttpAppFramework
     std::vector<AdviceDestroySessionCallback> sessionDestroyAdvices_;
     std::shared_ptr<trantor::AsyncFileLogger> asyncFileLoggerPtr_;
     Json::Value jsonConfig_;
+    Json::Value jsonRuntimeConfig_;
     HttpResponsePtr custom404_;
     std::function<HttpResponsePtr(HttpStatusCode)> customErrorHandler_ =
         &defaultErrorHandler;

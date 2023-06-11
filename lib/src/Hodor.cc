@@ -77,7 +77,7 @@ void Hodor::initAndStart(const Json::Value &config)
         config.get("rejection_message", "Too many requests").asString());
     rejectResponse_->setCloseConnection(true);
     limiterExpireTime_ =
-        (std::min)(static_cast<size_t>(
+        (std::max)(static_cast<size_t>(
                        config.get("limiter_expire_time", 600).asUInt()),
                    static_cast<size_t>(timeUnit_.count() * 3));
     limitStrategies_.emplace_back(makeLimitStrategy(config));
@@ -204,15 +204,10 @@ void Hodor::onHttpRequest(const drogon::HttpRequestPtr &req,
                           drogon::AdviceCallback &&adviceCallback,
                           drogon::AdviceChainCallback &&chainCallback)
 {
-    std::string ip;
-    if (useRealIpResolver_)
-    {
-        ip = drogon::plugin::RealIpResolver::GetRealAddr(req).toIp();
-    }
-    else
-    {
-        ip = req->peerAddr().toIp();
-    }
+    auto ip =
+        (useRealIpResolver_ ? drogon::plugin::RealIpResolver::GetRealAddr(req)
+                            : req->peerAddr())
+            .toIpNetEndian();
     optional<std::string> userId;
     if (userIdGetter_)
     {

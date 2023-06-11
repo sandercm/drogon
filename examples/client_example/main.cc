@@ -3,6 +3,11 @@
 #include <future>
 #include <iostream>
 
+#ifdef __linux__
+#include <sys/socket.h>
+#include <netinet/tcp.h>
+#endif
+
 using namespace drogon;
 
 int nth_resp = 0;

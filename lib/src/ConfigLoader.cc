@@ -154,11 +154,15 @@ static void loadLogSetting(const Json::Value &log)
     if (!log)
         return;
     auto logPath = log.get("log_path", "").asString();
-    if (logPath != "")
+    if (!logPath.empty())
     {
         auto baseName = log.get("logfile_base_name", "").asString();
         auto logSize = log.get("log_size_limit", 100000000).asUInt64();
-        HttpAppFrameworkImpl::instance().setLogPath(logPath, baseName, logSize);
+        auto maxFiles = log.get("max_files", 0).asUInt();
+        HttpAppFrameworkImpl::instance().setLogPath(logPath,
+                                                    baseName,
+                                                    logSize,
+                                                    maxFiles);
     }
     auto logLevel = log.get("log_level", "DEBUG").asString();
     if (logLevel == "TRACE")
@@ -508,7 +512,7 @@ static void loadApp(const Json::Value &app)
         }
     }
     bool enableCompressedRequests =
-        app.get("enabled_compresed_request", false).asBool();
+        app.get("enabled_compressed_request", false).asBool();
     drogon::app().enableCompressedRequest(enableCompressedRequests);
 }
 static void loadDbClients(const Json::Value &dbClients)
