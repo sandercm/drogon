@@ -15,8 +15,9 @@
 #include <atomic>
 #include <thread>
 #include <iostream>
-#include <drogon/utils/string_view.h>
+#include <string_view>
 #include <trantor/utils/LogStream.h>
+#include <drogon/utils/Utilities.h>
 
 namespace drogon
 {
@@ -103,7 +104,8 @@ enum ContentType
     CT_TEXT_PLAIN,
     CT_TEXT_HTML,
     CT_APPLICATION_X_FORM,
-    CT_APPLICATION_X_JAVASCRIPT,
+    CT_APPLICATION_X_JAVASCRIPT [[deprecated("use CT_TEXT_JAVASCRIPT")]],
+    CT_TEXT_JAVASCRIPT,
     CT_TEXT_CSS,
     CT_TEXT_XML,
     CT_APPLICATION_XML,
@@ -174,7 +176,7 @@ enum class WebSocketMessageType
     Unknown
 };
 
-inline string_view to_string_view(drogon::ReqResult result)
+inline std::string_view to_string_view(drogon::ReqResult result)
 {
     switch (result)
     {

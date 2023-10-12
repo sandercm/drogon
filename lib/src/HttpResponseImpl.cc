@@ -17,7 +17,7 @@
 #include "HttpUtils.h"
 #include <drogon/HttpViewData.h>
 #include <drogon/IOThreadStorage.h>
-#include "filesystem.h"
+#include <filesystem>
 #include <fstream>
 #include <memory>
 #include <cstdio>
@@ -37,6 +37,7 @@ namespace drogon
 {
 // "Fri, 23 Aug 2019 12:58:03 GMT" length = 29
 static const size_t httpFullDateStringLength = 29;
+
 static inline void doResponseCreateAdvices(
     const HttpResponseImplPtr &responsePtr)
 {
@@ -50,6 +51,7 @@ static inline void doResponseCreateAdvices(
         }
     }
 }
+
 static inline HttpResponsePtr genHttpResponse(const std::string &viewName,
                                               const HttpViewData &data)
 {
@@ -67,6 +69,14 @@ static inline HttpResponsePtr genHttpResponse(const std::string &viewName,
 HttpResponsePtr HttpResponse::newHttpResponse()
 {
     auto res = std::make_shared<HttpResponseImpl>(k200OK, CT_TEXT_HTML);
+    doResponseCreateAdvices(res);
+    return res;
+}
+
+HttpResponsePtr HttpResponse::newHttpResponse(HttpStatusCode code,
+                                              ContentType type)
+{
+    auto res = std::make_shared<HttpResponseImpl>(code, type);
     doResponseCreateAdvices(res);
     return res;
 }
@@ -194,6 +204,7 @@ HttpResponsePtr HttpResponse::newNotFoundResponse()
         }
     }
 }
+
 HttpResponsePtr HttpResponse::newRedirectionResponse(
     const std::string &location,
     HttpStatusCode status)
@@ -577,6 +588,7 @@ void HttpResponseImpl::makeHeaderString(trantor::MsgBuffer &buffer)
         buffer.append("\r\n");
     }
 }
+
 void HttpResponseImpl::renderToBuffer(trantor::MsgBuffer &buffer)
 {
     if (expriedTime_ >= 0)
@@ -620,6 +632,7 @@ void HttpResponseImpl::renderToBuffer(trantor::MsgBuffer &buffer)
     if (bodyPtr_)
         buffer.append(bodyPtr_->data(), bodyPtr_->length());
 }
+
 std::shared_ptr<trantor::MsgBuffer> HttpResponseImpl::renderToBuffer()
 {
     if (expriedTime_ >= 0)
@@ -693,7 +706,8 @@ std::shared_ptr<trantor::MsgBuffer> HttpResponseImpl::renderToBuffer()
     }
 
     LOG_TRACE << "reponse(no body):"
-              << string_view{httpString->peek(), httpString->readableBytes()};
+              << std::string_view{httpString->peek(),
+                                  httpString->readableBytes()};
     if (bodyPtr_)
         httpString->append(bodyPtr_->data(), bodyPtr_->length());
     if (expriedTime_ >= 0)
@@ -752,12 +766,13 @@ void HttpResponseImpl::addHeader(const char *start,
         return tolower(c);
     });
     ++colon;
-    while (colon < end && isspace(*colon))
+    while (colon < end && isspace(static_cast<unsigned char>(*colon)))
     {
         ++colon;
     }
     std::string value(colon, end);
-    while (!value.empty() && isspace(value[value.size() - 1]))
+    while (!value.empty() &&
+           isspace(static_cast<unsigned char>(value[value.size() - 1])))
     {
         value.resize(value.size() - 1);
     }
@@ -779,18 +794,20 @@ void HttpResponseImpl::addHeader(const char *start,
                 cookie_name = coo.substr(0, epos);
                 std::string::size_type cpos = 0;
                 while (cpos < cookie_name.length() &&
-                       isspace(cookie_name[cpos]))
+                       isspace(static_cast<unsigned char>(cookie_name[cpos])))
                     ++cpos;
                 cookie_name = cookie_name.substr(cpos);
                 ++epos;
-                while (epos < coo.length() && isspace(coo[epos]))
+                while (epos < coo.length() &&
+                       isspace(static_cast<unsigned char>(coo[epos])))
                     ++epos;
                 cookie_value = coo.substr(epos);
             }
             else
             {
                 std::string::size_type cpos = 0;
-                while (cpos < coo.length() && isspace(coo[cpos]))
+                while (cpos < coo.length() &&
+                       isspace(static_cast<unsigned char>(coo[cpos])))
                     ++cpos;
                 cookie_name = coo.substr(cpos);
             }
@@ -873,7 +890,7 @@ void HttpResponseImpl::clear()
 {
     statusCode_ = kUnknown;
     version_ = Version::kHttp11;
-    statusMessage_ = string_view{};
+    statusMessage_ = std::string_view{};
     fullHeaderString_.reset();
     jsonParsingErrorPtr_.reset();
     sendfileName_.clear();

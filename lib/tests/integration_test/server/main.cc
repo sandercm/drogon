@@ -8,9 +8,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <string_view>
 
 using namespace drogon;
 using namespace std::chrono_literals;
+
 class A : public DrObjectBase
 {
   public:
@@ -23,7 +25,10 @@ class A : public DrObjectBase
     {
         HttpViewData data;
         data.insert("title", std::string("ApiTest::get"));
-        std::unordered_map<std::string, std::string> para;
+        std::unordered_map<std::string,
+                           std::string,
+                           utils::internal::SafeStringHash>
+            para;
         para["int p1"] = std::to_string(p1);
         para["string p2"] = p2;
         para["string p3"] = p3;
@@ -33,6 +38,7 @@ class A : public DrObjectBase
         auto res = HttpResponse::newHttpViewResponse("ListParaView", data);
         callback(res);
     }
+
     static void staticHandle(
         const HttpRequestPtr &req,
         std::function<void(const HttpResponsePtr &)> &&callback,
@@ -43,7 +49,10 @@ class A : public DrObjectBase
     {
         HttpViewData data;
         data.insert("title", std::string("ApiTest::get"));
-        std::unordered_map<std::string, std::string> para;
+        std::unordered_map<std::string,
+                           std::string,
+                           utils::internal::SafeStringHash>
+            para;
         para["int p1"] = std::to_string(p1);
         para["string p2"] = p2;
         para["string p3"] = p3;
@@ -54,6 +63,7 @@ class A : public DrObjectBase
         callback(res);
     }
 };
+
 class B : public DrObjectBase
 {
   public:
@@ -64,7 +74,10 @@ class B : public DrObjectBase
     {
         HttpViewData data;
         data.insert("title", std::string("ApiTest::get"));
-        std::unordered_map<std::string, std::string> para;
+        std::unordered_map<std::string,
+                           std::string,
+                           utils::internal::SafeStringHash>
+            para;
         para["p1"] = std::to_string(p1);
         para["p2"] = std::to_string(p2);
         data.insert("parameters", para);
@@ -78,6 +91,7 @@ class C : public drogon::HttpController<C>
   public:
     METHOD_LIST_BEGIN
     ADD_METHOD_TO(C::priv, "/priv/resource", Get, "DigestAuthFilter");
+
     METHOD_LIST_END
     void priv(const HttpRequestPtr &req,
               std::function<void(const HttpResponsePtr &)> &&callback) const
@@ -102,6 +116,7 @@ class Test : public HttpController<Test>
     METHOD_ADD(Test::list,
                "/{2}/info",
                Get);  // path is /api/v1/test/{arg2}/info
+
     METHOD_LIST_END
     void get(const HttpRequestPtr &req,
              std::function<void(const HttpResponsePtr &)> &&callback,
@@ -110,13 +125,17 @@ class Test : public HttpController<Test>
     {
         HttpViewData data;
         data.insert("title", std::string("ApiTest::get"));
-        std::unordered_map<std::string, std::string> para;
+        std::unordered_map<std::string,
+                           std::string,
+                           utils::internal::SafeStringHash>
+            para;
         para["p1"] = std::to_string(p1);
         para["p2"] = std::to_string(p2);
         data.insert("parameters", para);
         auto res = HttpResponse::newHttpViewResponse("ListParaView", data);
         callback(res);
     }
+
     void list(const HttpRequestPtr &req,
               std::function<void(const HttpResponsePtr &)> &&callback,
               int p1,
@@ -124,7 +143,10 @@ class Test : public HttpController<Test>
     {
         HttpViewData data;
         data.insert("title", std::string("ApiTest::get"));
-        std::unordered_map<std::string, std::string> para;
+        std::unordered_map<std::string,
+                           std::string,
+                           utils::internal::SafeStringHash>
+            para;
         para["p1"] = std::to_string(p1);
         para["p2"] = std::to_string(p2);
         data.insert("parameters", para);
@@ -141,7 +163,7 @@ using namespace drogon;
 namespace drogon
 {
 template <>
-string_view fromRequest(const HttpRequest &req)
+std::string_view fromRequest(const HttpRequest &req)
 {
     return req.body();
 }
@@ -175,15 +197,18 @@ int main()
                      // parameter in the path.
            float b,  // here the `b` parameter is converted from the number 2
                      // parameter in the path.
-           string_view &&body,  // here the `body` parameter is converted from
-                                // req->as<string_view>();
+           std::string_view &&body,  // here the `body` parameter is converted
+                                     // from req->as<string_view>();
            const std::shared_ptr<Json::Value>
                &jsonPtr  // here the `jsonPtr` parameter is converted from
                          // req->as<std::shared_ptr<Json::Value>>();
         ) {
             HttpViewData data;
             data.insert("title", std::string("ApiTest::get"));
-            std::unordered_map<std::string, std::string> para;
+            std::unordered_map<std::string,
+                               std::string,
+                               utils::internal::SafeStringHash>
+                para;
             para["a"] = std::to_string(a);
             para["b"] = std::to_string(b);
             data.insert("parameters", para);

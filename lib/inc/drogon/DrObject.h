@@ -51,6 +51,7 @@ class DROGON_EXPORT DrObjectBase
     {
         return (className() == class_name);
     }
+
     virtual ~DrObjectBase()
     {
     }
@@ -68,6 +69,7 @@ class DrObject : public virtual DrObjectBase
     {
         return alloc_.className();
     }
+
     static const std::string &classTypeName()
     {
         return alloc_.className();
@@ -91,20 +93,27 @@ class DrObject : public virtual DrObjectBase
         {
             registerClass<T>();
         }
+
         const std::string &className() const
         {
             static std::string className =
                 DrClassMap::demangle(typeid(T).name());
             return className;
         }
+
         template <typename D>
         typename std::enable_if<std::is_default_constructible<D>::value,
                                 void>::type
         registerClass()
         {
-            DrClassMap::registerClass(className(),
-                                      []() -> DrObjectBase * { return new T; });
+            DrClassMap::registerClass(
+                className(),
+                []() -> DrObjectBase * { return new T; },
+                []() -> std::shared_ptr<DrObjectBase> {
+                    return std::make_shared<T>();
+                });
         }
+
         template <typename D>
         typename std::enable_if<!std::is_default_constructible<D>::value,
                                 void>::type
@@ -116,6 +125,7 @@ class DrObject : public virtual DrObjectBase
     // use static val to register allocator function for class T;
     static DrAllocator alloc_;
 };
+
 template <typename T>
 typename DrObject<T>::DrAllocator DrObject<T>::alloc_;
 

@@ -29,6 +29,7 @@
 #endif
 
 using namespace drogon;
+
 void HttpRequestImpl::parseJson() const
 {
     auto input = contentView();
@@ -70,27 +71,30 @@ void HttpRequestImpl::parseJson() const
             std::make_unique<std::string>("content type error");
     }
 }
+
 void HttpRequestImpl::parseParameters() const
 {
     auto input = queryView();
     if (!input.empty())
     {
-        string_view::size_type pos = 0;
-        while ((input[pos] == '?' || isspace(input[pos])) &&
+        std::string_view::size_type pos = 0;
+        while ((input[pos] == '?' ||
+                isspace(static_cast<unsigned char>(input[pos]))) &&
                pos < input.length())
         {
             ++pos;
         }
         auto value = input.substr(pos);
-        while ((pos = value.find('&')) != string_view::npos)
+        while ((pos = value.find('&')) != std::string_view::npos)
         {
             auto coo = value.substr(0, pos);
             auto epos = coo.find('=');
-            if (epos != string_view::npos)
+            if (epos != std::string_view::npos)
             {
                 auto key = coo.substr(0, epos);
-                string_view::size_type cpos = 0;
-                while (cpos < key.length() && isspace(key[cpos]))
+                std::string_view::size_type cpos = 0;
+                while (cpos < key.length() &&
+                       isspace(static_cast<unsigned char>(key[cpos])))
                     ++cpos;
                 key = key.substr(cpos);
                 auto pvalue = coo.substr(epos + 1);
@@ -104,11 +108,12 @@ void HttpRequestImpl::parseParameters() const
         {
             auto &coo = value;
             auto epos = coo.find('=');
-            if (epos != string_view::npos)
+            if (epos != std::string_view::npos)
             {
                 auto key = coo.substr(0, epos);
-                string_view::size_type cpos = 0;
-                while (cpos < key.length() && isspace(key[cpos]))
+                std::string_view::size_type cpos = 0;
+                while (cpos < key.length() &&
+                       isspace(static_cast<unsigned char>(key[cpos])))
                     ++cpos;
                 key = key.substr(cpos);
                 auto pvalue = coo.substr(epos + 1);
@@ -129,22 +134,24 @@ void HttpRequestImpl::parseParameters() const
     if (type.empty() ||
         type.find("application/x-www-form-urlencoded") != std::string::npos)
     {
-        string_view::size_type pos = 0;
-        while ((input[pos] == '?' || isspace(input[pos])) &&
+        std::string_view::size_type pos = 0;
+        while ((input[pos] == '?' ||
+                isspace(static_cast<unsigned char>(input[pos]))) &&
                pos < input.length())
         {
             ++pos;
         }
         auto value = input.substr(pos);
-        while ((pos = value.find('&')) != string_view::npos)
+        while ((pos = value.find('&')) != std::string_view::npos)
         {
             auto coo = value.substr(0, pos);
             auto epos = coo.find('=');
-            if (epos != string_view::npos)
+            if (epos != std::string_view::npos)
             {
                 auto key = coo.substr(0, epos);
-                string_view::size_type cpos = 0;
-                while (cpos < key.length() && isspace(key[cpos]))
+                std::string_view::size_type cpos = 0;
+                while (cpos < key.length() &&
+                       isspace(static_cast<unsigned char>(key[cpos])))
                     ++cpos;
                 key = key.substr(cpos);
                 auto pvalue = coo.substr(epos + 1);
@@ -158,11 +165,12 @@ void HttpRequestImpl::parseParameters() const
         {
             auto &coo = value;
             auto epos = coo.find('=');
-            if (epos != string_view::npos)
+            if (epos != std::string_view::npos)
             {
                 auto key = coo.substr(0, epos);
-                string_view::size_type cpos = 0;
-                while (cpos < key.length() && isspace(key[cpos]))
+                std::string_view::size_type cpos = 0;
+                while (cpos < key.length() &&
+                       isspace(static_cast<unsigned char>(key[cpos])))
                     ++cpos;
                 key = key.substr(cpos);
                 auto pvalue = coo.substr(epos + 1);
@@ -401,12 +409,13 @@ void HttpRequestImpl::addHeader(const char *start,
                    field.begin(),
                    [](unsigned char c) { return tolower(c); });
     ++colon;
-    while (colon < end && isspace(*colon))
+    while (colon < end && isspace(static_cast<unsigned char>(*colon)))
     {
         ++colon;
     }
     std::string value(colon, end);
-    while (!value.empty() && isspace(value[value.size() - 1]))
+    while (!value.empty() &&
+           isspace(static_cast<unsigned char>(value[value.size() - 1])))
     {
         value.resize(value.size() - 1);
     }
@@ -423,13 +432,13 @@ void HttpRequestImpl::addHeader(const char *start,
                 std::string cookie_name = coo.substr(0, epos);
                 std::string::size_type cpos = 0;
                 while (cpos < cookie_name.length() &&
-                       isspace(cookie_name[cpos]))
+                       isspace(static_cast<unsigned char>(cookie_name[cpos])))
                     ++cpos;
                 cookie_name = cookie_name.substr(cpos);
                 std::string cookie_value = coo.substr(epos + 1);
                 cpos = 0;
                 while (cpos < cookie_value.length() &&
-                       isspace(cookie_value[cpos]))
+                       isspace(static_cast<unsigned char>(cookie_value[cpos])))
                     ++cpos;
                 cookie_value = cookie_value.substr(cpos);
                 cookies_[std::move(cookie_name)] = std::move(cookie_value);
@@ -445,13 +454,13 @@ void HttpRequestImpl::addHeader(const char *start,
                 std::string cookie_name = coo.substr(0, epos);
                 std::string::size_type cpos = 0;
                 while (cpos < cookie_name.length() &&
-                       isspace(cookie_name[cpos]))
+                       isspace(static_cast<unsigned char>(cookie_name[cpos])))
                     ++cpos;
                 cookie_name = cookie_name.substr(cpos);
                 std::string cookie_value = coo.substr(epos + 1);
                 cpos = 0;
                 while (cpos < cookie_value.length() &&
-                       isspace(cookie_value[cpos]))
+                       isspace(static_cast<unsigned char>(cookie_value[cpos])))
                     ++cpos;
                 cookie_value = cookie_value.substr(cpos);
                 cookies_[std::move(cookie_name)] = std::move(cookie_value);
@@ -574,6 +583,7 @@ void HttpRequestImpl::swap(HttpRequestImpl &that) noexcept
     swap(loop_, that.loop_);
     swap(flagForParsingContentType_, that.flagForParsingContentType_);
     swap(jsonParsingErrorPtr_, that.jsonParsingErrorPtr_);
+    swap(routingParams_, that.routingParams_);
 }
 
 const char *HttpRequestImpl::versionString() const
@@ -630,7 +640,7 @@ const char *HttpRequestImpl::methodString() const
 bool HttpRequestImpl::setMethod(const char *start, const char *end)
 {
     assert(method_ == Invalid);
-    string_view m(start, end - start);
+    std::string_view m(start, end - start);
     switch (m.length())
     {
         case 3:
@@ -801,7 +811,7 @@ StreamDecompressStatus HttpRequestImpl::decompressBodyBrotli() noexcept
     auto minVal = [](size_t a, size_t b) { return a < b ? a : b; };
     std::unique_ptr<CacheFile> cacheFileHolder;
     std::string contentHolder;
-    string_view compressed;
+    std::string_view compressed;
     if (cacheFilePtr_)
     {
         cacheFileHolder = std::move(cacheFilePtr_);
@@ -873,7 +883,7 @@ StreamDecompressStatus HttpRequestImpl::decompressBodyGzip() noexcept
     auto minVal = [](size_t a, size_t b) { return a < b ? a : b; };
     std::unique_ptr<CacheFile> cacheFileHolder;
     std::string contentHolder;
-    string_view compressed;
+    std::string_view compressed;
     if (cacheFilePtr_)
     {
         cacheFileHolder = std::move(cacheFilePtr_);

@@ -1,4 +1,4 @@
-![](https://github.com/an-tao/drogon/wiki/images/drogon-white.jpg)
+![](https://github.com/an-tao/drogon/wiki/images/drogon-white17.jpg)
 
 [![Build Status](https://github.com/an-tao/drogon/workflows/Build%20Drogon/badge.svg?branch=master)](https://github.com/drogonframework/drogon/actions)
 [![Join the chat at https://gitter.im/drogon-web/community](https://badges.gitter.im/drogon-web/community.svg)](https://gitter.im/drogon-web/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -7,7 +7,7 @@
 
 English | [简体中文](./README.zh-CN.md) | [繁體中文](./README.zh-TW.md)
 ### Overview
-**Drogon** is a C++14/17-based HTTP application framework. Drogon can be used to easily build various types of web application server programs using C++. **Drogon** is the name of a dragon in the American TV series "Game of Thrones" that I really like.
+**Drogon** is a C++17/20 based HTTP application framework. Drogon can be used to easily build various types of web application server programs using C++. **Drogon** is the name of a dragon in the American TV series "Game of Thrones" that I really like.
 
 Drogon is a cross-platform framework, It supports Linux, macOS, FreeBSD, OpenBSD, HaikuOS, and Windows. Its main features are as follows:
 
@@ -183,6 +183,34 @@ As you can see, users can use the `HttpController` to map paths and parameters a
 In addition, you can also find that all handler interfaces are in asynchronous mode, where the response is returned by a callback object. This design is for performance reasons because in asynchronous mode the drogon application can handle a large number of concurrent requests with a small number of threads.
 
 After compiling all of the above source files, we get a very simple web application. This is a good start. **For more information, please visit the [wiki](https://github.com/an-tao/drogon/wiki/ENG-01-Overview)**
+
+## Cross-compilation
+
+Drogon supports cross-compilation, you should define the `CMAKE_SYSTEM_NAME` in toolchain file, for example:
+    
+```cmake
+set(CMAKE_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM_PROCESSOR arm)
+```
+
+You can disable building options for examples and drogon_ctl by settings `BUILD_EXAMPLES` and `BUILD_CTL` to `OFF` in the toolchain file.
+
+## Building options
+
+Drogon provides some building options, you can enable or disable them by setting the corresponding variables to `ON` or `OFF` in the cmake command line, cmake file etc...
+
+| Option name | Description | Default value |
+| :--- | :--- | :--- |
+| BUILD_CTL | Build drogon_ctl | ON |
+| BUILD_EXAMPLES | Build examples | ON |
+| BUILD_ORM | Build orm | ON |
+| COZ_PROFILING | Use coz for profiling | OFF |
+| BUILD_SHARED_LIBS | Build drogon as a shared lib | OFF |
+| BUILD_DOC | Build Doxygen documentation | OFF |
+| BUILD_BROTLI | Build Brotli | ON |
+| BUILD_YAML_CONFIG | Build yaml config | ON |
+| USE_SUBMODULE | Use trantor as a submodule | ON |
+
 
 ## Contributions
 

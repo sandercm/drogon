@@ -68,6 +68,7 @@ using DefaultHandler =
                        std::function<void(const HttpResponsePtr &)> &&)>;
 #ifdef __cpp_impl_coroutine
 class HttpAppFramework;
+
 namespace internal
 {
 struct [[nodiscard]] ForwardAwaiter
@@ -84,6 +85,7 @@ struct [[nodiscard]] ForwardAwaiter
           app_(app)
     {
     }
+
     void await_suspend(std::coroutine_handle<> handle) noexcept;
 
   private:
@@ -199,7 +201,26 @@ class DROGON_EXPORT HttpAppFramework : public trantor::NonCopyable
         return pluginPtr;
     }
 
-    /// Get the plugin object registered in the framework
+    /// Get the shared_ptr plugin object registered in the framework
+    /**
+     * @note
+     * This method is usually called after the framework runs.
+     * Calling this method in the initAndStart() method of plugins is also
+     * valid.
+     */
+    template <typename T>
+    std::shared_ptr<T> getSharedPlugin()
+    {
+        static_assert(IsPlugin<T>::value,
+                      "The Template parameter must be a subclass of "
+                      "PluginBase");
+        assert(isRunning());
+        static auto pluginPtr =
+            std::dynamic_pointer_cast<T>(getSharedPlugin(T::classTypeName()));
+        return pluginPtr;
+    }
+
+    /// @brief the plugin object registered in the framework
     /**
      * @param name is the class name of the plugin.
      *
@@ -209,6 +230,17 @@ class DROGON_EXPORT HttpAppFramework : public trantor::NonCopyable
      * valid.
      */
     virtual PluginBase *getPlugin(const std::string &name) = 0;
+
+    /**
+     * @brief Get the shared_ptr plugin object registered in the framework
+     *
+     * @note
+     * This method is usually called after the framework runs.
+     * Calling this method in the initAndStart() method of plugins is also
+     * valid.
+     */
+    virtual std::shared_ptr<PluginBase> getSharedPlugin(
+        const std::string &name) = 0;
 
     /* The following is a series of methods of AOP */
 
@@ -508,6 +540,7 @@ class DROGON_EXPORT HttpAppFramework : public trantor::NonCopyable
             pathPattern, binder, validMethods, filters, handlerName);
         return *this;
     }
+
     /**
      * @brief Register a handler into the framework via a regular expression.
      *
@@ -1491,6 +1524,10 @@ class DROGON_EXPORT HttpAppFramework : public trantor::NonCopyable
 
     virtual HttpAppFramework &enableCompressedRequest(bool enable = true) = 0;
     virtual bool isCompressedRequestEnabled() const = 0;
+    /*
+     * @brief get the number of active connections.
+     */
+    virtual int64_t getConnectionCount() const = 0;
 
   private:
     virtual void registerHttpController(
